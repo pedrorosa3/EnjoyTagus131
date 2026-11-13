@@ -116,19 +116,18 @@ def removeHeader(filename):
     header=[]
     
     try:
-        file=open(filename,"r")
+        file=open(filename,"r",encoding="utf-8")
     except FileNotFoundError:
-        print("Could not found this file")
-        file.close()
-    finally:
+        raise SystemExit("Input file error: could not find file " + filename + ".")
+
+    with file:
         for line in file.readlines():
             list.append(line)
-        for i in (list[0:NUM_HEADER_LINES]):
-            header.append(i)
-            list.remove(i)
-        file.close()  
-        for n in range(len(header)):
-            header[n]=header[n].rstrip() 
+
+    header=list[0:NUM_HEADER_LINES]
+    list=list[NUM_HEADER_LINES:]
+    for n in range(len(header)):
+        header[n]=header[n].rstrip()
             
     return list,header
 

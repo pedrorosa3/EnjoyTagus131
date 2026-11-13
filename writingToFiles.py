@@ -45,29 +45,30 @@ def writeScheduleFile(schedule, header, fileName):
         day=header[HEADER_DATE_IDX]
 
     fileName="schedule"+hours_name+".txt"
-    header="Company:\n"+"Tagus Sailing\n"+"Day:\n"+day+"\n"+"Time:\n"+hours+"\n"+"Schedule:\n" 
-    
-    
+    header="Company:\n"+"Tagus Sailing\n"+"Day: \n"+day+"\n"+"Time:\n"+hours+"\n"+"Schedule:\n"
 
-        
-      
 
-    InFile2=open(fileName,"w")
-    
-    
-    
+
+
+
+
+    InFile2=open(fileName,"w",encoding="utf-8")
+
+
+
     InFile2.write(header)
-    for text in schedule:
+    for line_idx, text in enumerate(schedule):
+        if line_idx > 0:
+            InFile2.write("\n")
         for x in text:
             if str(x) == text[-1]:
                 InFile2.write(x)
                 continue
             x = str(x)+", "
             InFile2.write(x)
-        InFile2.write("\n")
-        
-    
-    InFile2.close
+
+
+    InFile2.close()
     return InFile2     
 
 
@@ -99,17 +100,19 @@ def writeSkippersFile(skippers, header, fileName):
         day=header[HEADER_DATE_IDX]
 
     fileName="skippers"+hours_name+".txt"
-    header="Company:\n"+"Tagus Sailing\n"+"Day:\n"+day+"\n"+"Time:\n"+hours+"\n"+"Skippers:\n" 
-    
-    
-    
+    header="Company:\n"+"Tagus Sailing\n"+"Day: \n"+day+"\n"+"Time:\n"+hours+"\n"+"Skippers:\n"
 
-    InFile1=open(fileName,"w")
-    
-    
-                                                                  
+
+
+
+    InFile1=open(fileName,"w",encoding="utf-8")
+
+
+
     InFile1.write(header)
-    for text in skippers:
+    for line_idx, text in enumerate(skippers):
+        if line_idx > 0:
+            InFile1.write("\n")
         for x in text:
                      
             if type(x)==list:
@@ -126,11 +129,9 @@ def writeSkippersFile(skippers, header, fileName):
 
                 x = str(x)+", "
                 InFile1.write(x)
-        
-        InFile1.write("\n")
-        
-    
-    InFile1.close
+
+
+    InFile1.close()
     return InFile1
 
 

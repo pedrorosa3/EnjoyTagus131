@@ -12,9 +12,18 @@ from constants import HEADER_DATE_IDX,HEADER_HOUR_IDX,HEADER_SPECIFICATION
 import sys
 
 
-skippers=sys.argv[1]
-schedule=sys.argv[2]
-requests=sys.argv[3]
+def checkFileConsistency(fileName, header):
+    """
+    Checks that the time and scope in the name of a file match its header.
+
+    Requires: fileName is a str with the name of a .txt file;
+    header is the list of header lines of that file, as returned by
+    readingFromFiles.removeHeader.
+    Ensures: raises an Exception naming the file if they do not match.
+    """
+    if header[HEADER_HOUR_IDX] != FileNameToHour(fileName) or \
+        header[HEADER_SPECIFICATION] != FileNameToSpecification(fileName):
+        raise Exception("Input file error: scope or time inconsistency between name and header in file " + fileName + ".")
 
 def assign(skippersFileName, scheduleFileName, requestsFileName):
     """
@@ -42,6 +51,12 @@ def assign(skippersFileName, scheduleFileName, requestsFileName):
     elements,header=removeHeader(skippersFileName)
     elements,header2=removeHeader(scheduleFileName)
     elements,header3=removeHeader(requestsFileName)
+
+    # Validate all input files before writing anything
+    checkFileConsistency(skippersFileName, header)
+    checkFileConsistency(scheduleFileName, header2)
+    checkFileConsistency(requestsFileName, header3)
+
     previousDate=header[HEADER_DATE_IDX]
     previousHour=header[HEADER_HOUR_IDX]
     skippers=readSkippersFile(skippersFileName)
@@ -49,19 +64,15 @@ def assign(skippersFileName, scheduleFileName, requestsFileName):
     schedule=readScheduleFile(scheduleFileName)
     skippers_new,schedule_new=updateSchedule(skippers,schedule,requests,previousDate,previousHour,header[HEADER_HOUR_IDX])
     InFile1=writeSkippersFile(skippers_new,header,skippersFileName)
-    header_new=AfterHour(header[HEADER_HOUR_IDX])
-    header_new1=header[HEADER_SPECIFICATION]
-    header_new2=header2[HEADER_SPECIFICATION]
-    header_new3=header3[HEADER_SPECIFICATION]
     InFile2=writeScheduleFile(schedule_new,header,scheduleFileName)
-    if header[HEADER_HOUR_IDX]!= FileNameToHour(skippersFileName)or header[HEADER_HOUR_IDX]!= FileNameToHour(requestsFileName) or header[HEADER_HOUR_IDX]!= FileNameToHour(scheduleFileName) or\
-        header_new1!= FileNameToSpecification(skippersFileName) or  header_new3!= FileNameToSpecification(requestsFileName) or  header_new2!= FileNameToSpecification(scheduleFileName):
-        raise Exception("Input file error: scope or time inconsistency between name and header in file <name of file>.")
-    else:
-        return InFile1,InFile2
-    
+    return InFile1,InFile2
 
-print(assign(skippers,schedule,requests))
+
+if __name__ == "__main__":
+    if len(sys.argv) != 4:
+        raise SystemExit("Usage: python update.py <skippers file> <schedule file> <requests file>")
+    skippersOut,scheduleOut=assign(sys.argv[1],sys.argv[2],sys.argv[3])
+    print("Files written: " + skippersOut.name + ", " + scheduleOut.name)
     
 
 

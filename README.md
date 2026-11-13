@@ -62,7 +62,9 @@ e produz a nova agenda e a lista de skippers atualizada para o instante seguinte
 - Passagem dos passeios para o dia seguinte quando ultrapassam o horário de funcionamento (08:00–20:00).
 - Marcação como `not-assigned` dos pedidos sem skipper compatível.
 - Escrita dos novos ficheiros `scheduleHHhMM.txt` e `skippersHHhMM.txt` para o instante seguinte (+30 min).
-- Deteção de inconsistências entre o nome do ficheiro e o seu cabeçalho.
+- Validação dos ficheiros de entrada **antes** de qualquer escrita: deteção de inconsistências entre o nome do ficheiro e o seu cabeçalho, com indicação do ficheiro problemático.
+- Mensagens de erro claras para argumentos em falta ou ficheiros inexistentes.
+- Leitura e escrita em **UTF-8** (nomes com acentos, como *François*, funcionam em qualquer sistema).
 
 ---
 
@@ -123,15 +125,24 @@ python update.py testSets/testSet1/skippers17h00.txt testSets/testSet1/schedule1
 
 ### 3. Resultado
 
-São criados dois ficheiros **na pasta a partir da qual o comando foi executado**, com a hora seguinte no nome:
+São criados dois ficheiros **na pasta a partir da qual o comando foi executado**, com a hora seguinte no nome, e o programa indica-os no terminal:
 
 ```text
-schedule17h30.txt
-skippers17h30.txt
+Files written: skippers17h30.txt, schedule17h30.txt
 ```
 
 > [!NOTE]
 > Os ficheiros de saída são escritos na pasta atual. Se correr o programa dentro de uma pasta `testSets/testSetN`, os ficheiros com as saídas esperadas serão substituídos.
+
+### Erros
+
+Se algo estiver errado, o programa termina **sem escrever nenhum ficheiro** e mostra uma mensagem:
+
+| Situação | Mensagem |
+|---|---|
+| Número de argumentos errado | `Usage: python update.py <skippers file> <schedule file> <requests file>` |
+| Ficheiro inexistente | `Input file error: could not find file <ficheiro>.` |
+| Nome do ficheiro não coincide com o cabeçalho | `Input file error: scope or time inconsistency between name and header in file <ficheiro>.` |
 
 ---
 
@@ -196,7 +207,15 @@ Cada pasta em `testSets/` contém os ficheiros de entrada (`HHh00`) e as saídas
 | `testSet1` | 17h00 | Caso geral, inclui um pedido `not-assigned` |
 | `testSet2` | 18h00 | Caso geral |
 | `testSet3` | 10h00 | Caso geral |
-| `testSet4` | 13h00 | Caso de erro: hora no cabeçalho não corresponde ao nome do ficheiro |
+| `testSet4` | 13h00 | Caso de erro: hora no cabeçalho (17:00) não corresponde ao nome do ficheiro — o programa termina com erro e não gera ficheiros |
+
+Os conjuntos 1 a 3 produzem saídas idênticas às esperadas. Para os verificar sem substituir os ficheiros esperados, corra o programa a partir de outra pasta e compare os resultados, por exemplo:
+
+```bash
+mkdir saida && cd saida
+python ../update.py ../testSets/testSet1/skippers17h00.txt ../testSets/testSet1/schedule17h00.txt ../testSets/testSet1/requests17h00.txt
+diff schedule17h30.txt ../testSets/testSet1/schedule17h30.txt
+```
 
 ---
 
